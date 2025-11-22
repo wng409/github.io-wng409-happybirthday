@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="天天的 Minecraft 生日祝福信">
+    <title>天天的 Minecraft 生日信 ✉️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Press Start 2P', cursive, monospace;
+            background: linear-gradient(135deg, #6a89cc 0%, #4a69bd 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #333;
+            image-rendering: pixelated;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 20px;
+            z-index: 10;
+        }
+        
+        .envelope-container {
+            position: relative;
+            margin: 40px auto;
+            width: 300px;
+            height: 200px;
+            cursor: pointer;
+            transition: transform 0.5s;
+            z-index: 10;
+        }
+        
+        .envelope {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #e74c3c;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            z-index: 2;
+            transition: transform 0.5s;
+        }
+        
+        .envelope:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #c0392b;
+            clip-path: polygon(0 0, 50% 50%, 100% 0);
+            z-index: 3;
+        }
+        
+        .envelope:after {
+            content: '✉️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            z-index: 4;
+        }
+        
+        .letter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .letter-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .letter-content {
+            max-width: 800px;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s 0.3s;
+        }
+        
+        .letter-overlay.active .letter-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #e74c3c;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .message {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 4px solid #8b4513;
+            box-shadow: 5px 5px 0 #654321;
+            font-size: 1rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+        
+        .minecraft-elements {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .mc-block {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #000;
+            box-shadow: 3px 3px 0 #333;
+            image-rendering: pixelated;
+        }
+        
+        .dirt-block {
+            background: linear-gradient(45deg, #8B6914 0%, #6B4F0A 100%);
+        }
+        
+        .grass-block {
+            background: linear-gradient(to bottom, #7CFC00 0%, #7CFC00 30%, #8B6914 30%, #8B6914 100%);
+        }
+        
+        .diamond-block {
+            background: linear-gradient(45deg, #4EE2EC 0%, #1E90FF 100%);
+        }
+        
+        .cake-block {
+            background: linear-gradient(to bottom, #F5F5DC 0%, #DEB887 30%, #8B4513 30%, #8B4513 100%);
+            position: relative;
+        }
+        
+        .cake-block:before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 10px;
+            background: #FF69B4;
+            border: 2px solid #000;
+        }
+        
+        .cake-block:after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 25px;
+            width: 5px;
+            height: 15px;
+            background: #FFD700;
+            border: 1px solid #000;
+        }
+        
+        .button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 0.9rem;
+            border-radius: 0;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 0 #219653;
+            border: 2px solid #000;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 #219653;
+        }
+        
+        .button:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #219653;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        .pixel-art {
+            margin: 20px auto;
+            width: 100px;
+            height: 100px;
+            position: relative;
+        }
+        
+        .steve-head {
+            width: 60px;
+            height: 60px;
+            background: #e0ac69;
+            border: 3px solid #000;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .steve-hair {
+            width: 60px;
+            height: 15px;
+            background: #3d2b1f;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .steve-eyes {
+            width: 40px;
+            height: 10px;
+            background: #000;
+            position: absolute;
+            top: 25px;
+            left: 10px;
+        }
+        
+        .minecraft-world {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            z-index: -1;
+            display: flex;
+        }
+        
+        .grass-ground {
+            height: 100%;
+            flex-grow: 1;
+            background: linear-gradient(to bottom, #7CFC00 0%, #7CFC00 30%, #8B6914 30%, #8B6914 100%);
+            border-top: 3px solid #000;
+        }
+        
+        .dirt-ground {
+            height: 100%;
+            width: 100px;
+            background: #8B6914;
+            border-top: 3px solid #000;
+        }
+        
+        .stone-ground {
+            height: 100%;
+            width: 100px;
+            background: #808080;
+            border-top: 3px solid #000;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .floating {
+            animation: float 3s infinite ease-in-out;
+        }
+        
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            color: white;
+        }
+        
+        .loading.hidden {
+            display: none;
+        }
+        
+        .loading-bar {
+            width: 200px;
+            height: 20px;
+            background: #333;
+            margin-top: 20px;
+            border: 2px solid #000;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            background: #27ae60;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #c0392b;
+            border: 3px solid #000;
+            z-index: 101;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        .close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 #c0392b;
+        }
+        
+        .close-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #c0392b;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.4rem;
+            }
+            
+            .envelope-container {
+                width: 250px;
+                height: 170px;
+            }
+            
+            .message {
+                font-size: 0.8rem;
+                padding: 20px;
+            }
+            
+            .letter-overlay {
+                padding: 10px;
+            }
+            
+            .close-btn {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="loading" id="loading">
+        <p>加载中...</p>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loading-progress"></div>
+        </div>
+    </div>
+    
+    <div class="minecraft-world">
+        <div class="grass-ground"></div>
+        <div class="dirt-ground"></div>
+        <div class="stone-ground"></div>
+        <div class="grass-ground"></div>
+    </div>
+    
+    <div class="container">
+        <h1>天天的 Minecraft 生日信</h1>
+        
+        <div class="envelope-container" id="envelope">
+            <div class="envelope"></div>
+        </div>
+        
+        <p>点击信封打开祝福 ✉️</p>
+        
+        <div class="pixel-art">
+            <div class="steve-head">
+                <div class="steve-hair"></div>
+                <div class="steve-eyes"></div>
+            </div>
+        </div>
+        
+        <div class="minecraft-elements">
+            <div class="mc-block grass-block floating" style="animation-delay: 0s;"></div>
+            <div class="mc-block dirt-block floating" style="animation-delay: 0.5s;"></div>
+            <div class="mc-block diamond-block floating" style="animation-delay: 1s;"></div>
+            <div class="mc-block cake-block floating" style="animation-delay: 1.5s;"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="button" id="play-music">播放音乐</button>
+        </div>
+    </div>
+    
+    <!-- 全屏信件覆盖层 -->
+    <div class="letter-overlay" id="letter-overlay">
+        <button class="close-btn" id="close-letter">×</button>
+        <div class="letter-content">
+            <h2>亲爱的天天：</h2>
+            <div class="message">
+                <p>生日快乐！🎂</p>
+                <p>在这个特别的日子里，愿你的世界充满方块般的惊喜！</p>
+                <p>愿你的每一天都像钻石一样珍贵，</p>
+                <p>像绿宝石一样闪耀，</p>
+                <p>像红石一样充满能量！</p>
+                <br>
+                <p>探索未知，创造奇迹，</p>
+                <p>在你的世界里建造属于自己的城堡！</p>
+                <br>
+                <p>祝你生日快乐，天天开心！</p>
+                <p>🎁 🎉 ✨</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 使用更小的音频文件，避免加载问题 -->
+    <audio id="birthday-song" preload="metadata">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-happy-birthday-song-208.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="minecraft-sound" preload="metadata">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const envelope = document.getElementById('envelope');
+            const playMusicBtn = document.getElementById('play-music');
+            const closeLetterBtn = document.getElementById('close-letter');
+            const letterOverlay = document.getElementById('letter-overlay');
+            const birthdaySong = document.getElementById('birthday-song');
+            const minecraftSound = document.getElementById('minecraft-sound');
+            const loadingScreen = document.getElementById('loading');
+            const loadingProgress = document.getElementById('loading-progress');
+            
+            // 预加载资源
+            let loadedResources = 0;
+            const totalResources = 2; // 两个音频文件
+            
+            function updateProgress() {
+                loadedResources++;
+                const progress = (loadedResources / totalResources) * 100;
+                loadingProgress.style.width = `${progress}%`;
+                
+                if (loadedResources >= totalResources) {
+                    setTimeout(() => {
+                        loadingScreen.classList.add('hidden');
+                        // 只有在所有资源加载完成后才显示提示
+                        document.querySelector('.container p').style.visibility = 'visible';
+                    }, 500);
+                }
+            }
+            
+            // 初始化提示文本为不可见
+            document.querySelector('.container p').style.visibility = 'hidden';
+            
+            // 检查音频加载状态
+            birthdaySong.addEventListener('canplaythrough', updateProgress);
+            minecraftSound.addEventListener('canplaythrough', updateProgress);
+            
+            // 如果音频加载失败，也更新进度
+            birthdaySong.addEventListener('error', updateProgress);
+            minecraftSound.addEventListener('error', updateProgress);
+            
+            // 设置超时，防止无限等待
+            setTimeout(() => {
+                if (loadedResources < totalResources) {
+                    loadingScreen.classList.add('hidden');
+                    document.querySelector('.container p').style.visibility = 'visible';
+                    console.log('部分资源加载超时，继续显示页面');
+                }
+            }, 5000);
+            
+            // 防止重复点击的标志
+            let isAnimating = false;
+            
+            // 打开信封功能
+            envelope.addEventListener('click', function() {
+                if (isAnimating) return;
+                
+                isAnimating = true;
+                letterOverlay.classList.add('active');
+                
+                // 使用 try-catch 防止音频播放错误
+                try {
+                    minecraftSound.currentTime = 0;
+                    minecraftSound.play().catch(e => console.log('音效播放失败:', e));
+                } catch (e) {
+                    console.log('音效播放错误:', e);
+                }
+                
+                // 动画完成后重置标志
+                setTimeout(() => {
+                    isAnimating = false;
+                }, 500);
+            });
+            
+            // 关闭信件功能
+            closeLetterBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // 防止事件冒泡
+                letterOverlay.classList.remove('active');
+            });
+            
+            // 点击信件背景也可以关闭
+            letterOverlay.addEventListener('click', function(e) {
+                if (e.target === letterOverlay) {
+                    letterOverlay.classList.remove('active');
+                }
+            });
+            
+            // 播放音乐功能
+            playMusicBtn.addEventListener('click', function() {
+                if (birthdaySong.paused) {
+                    try {
+                        birthdaySong.play().then(() => {
+                            playMusicBtn.textContent = '暂停音乐';
+                        }).catch(e => {
+                            console.log('音乐播放失败:', e);
+                            alert('音乐播放失败，请检查浏览器设置或网络连接');
+                        });
+                    } catch (e) {
+                        console.log('音乐播放错误:', e);
+                    }
+                } else {
+                    birthdaySong.pause();
+                    playMusicBtn.textContent = '播放音乐';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
